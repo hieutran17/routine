@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // bcrypt hash
+  createdAt DateTime @default(now())
+
+  categories   Category[]
+  timeEntries  TimeEntry[]
+  reviewNotes  ReviewNote[]
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  color String @default("#6366f1") // hex color
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  targets     CategoryTarget[]
+  timeEntries TimeEntry[]
+
+  @@unique([userId, name])
+}
+
+model CategoryTarget {
+  id         Int    @id @default(autoincrement())
+  categoryId Int
+  period     Period // DAY | WEEK | MONTH
+  minutes    Int    // target duration in minutes
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, period])
+}
+
+model TimeEntry {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  categoryId Int
+  date       DateTime @db.Date // local date (no time component)
+  minutes    Int
+  note       String?
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model ReviewNote {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  isoYear  Int
+  isoWeek  Int    // 1-53
+  content  String
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, isoYear, isoWeek])
+}
+
+enum Period {
+  DAY
+  WEEK
+  MONTH
+}
