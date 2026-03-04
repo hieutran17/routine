@@ -21,9 +21,11 @@ model User {
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  color String @default("#6366f1") // hex color
+  id        Int     @id @default(autoincrement())
+  name      String
+  color     String  @default("#6366f1") // hex color
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
 
   userId Int
   user   User @relation(fields: [userId], references: [id])

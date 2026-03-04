@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Category" ADD COLUMN     "active" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "sortOrder" INTEGER NOT NULL DEFAULT 0;
+
